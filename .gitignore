@@ -1,0 +1,11 @@
+node_modules/
+lib/
+.npm-cache/
+.pnpm-store/
+.pnpm-home/
+.config/
+.dsh-test/
+*.log
+
+# Runtime output of the research skill in a workspace (exports, screening chunks).
+/parallax/

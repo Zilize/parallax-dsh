@@ -1,0 +1,3 @@
+# Keep LF everywhere, whatever core.autocrlf says.
+* text=auto eol=lf
+*.gif binary

@@ -1,0 +1,8 @@
+# Bundle layer applied when a profile lists `Parallax`.
+#
+# The row loads the Node half (src/index.ts → lib/index.js). The browser half is
+# picked up automatically from the same package's `dsh.client` manifest plus its
+# `exports["./client"]` bundle — no second row is needed for it.
+- insert:
+    - id: parallax
+      name: Parallax

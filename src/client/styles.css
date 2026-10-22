@@ -1,0 +1,2032 @@
+/*
+ * Parallax styles.
+ *
+ * Scoped under `.pg-root` so nothing leaks into the dsh shell: a warm-gray
+ * scale (hue 40), the system UI font stack, 14/13/12/11px type, 248×96 graph
+ * cards, a 16px-radius canvas on a faint muted bed, and divider-separated
+ * paper rows. Portalled layers (menus, tips, popovers) carry their own tokens.
+ */
+
+.pg-root {
+  --pg-bg: hsl(0 0% 100%);
+  --pg-fg: hsl(40 4% 10%);
+  --pg-card: hsl(0 0% 100%);
+  --pg-muted: hsl(40 5% 95.8%);
+  --pg-muted-fg: hsl(40 3% 45%);
+  --pg-border: hsl(40 4% 89.5%);
+  --pg-divider: hsl(40 5% 94.5%);
+  --pg-edge: hsl(40 4% 76%);
+  --pg-amber: #b45309;
+  --pg-amber-bg: rgb(245 158 11 / 0.15);
+  --pg-emerald: #047857;
+  --pg-chip: rgb(0 0 0 / 0.06);
+  --pg-font:
+    -apple-system, BlinkMacSystemFont, "Segoe UI Variable Text", "Segoe UI",
+    Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI",
+    "Microsoft YaHei", "Noto Sans CJK SC", "Noto Sans SC", sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  --pg-shadow-card:
+    0 0 0 1px rgb(0 0 0 / 0.05),
+    0 1px 2px rgb(0 0 0 / 0.07),
+    0 2px 4px -2px rgb(0 0 0 / 0.08);
+
+  height: 100%;
+  min-height: 0;
+  overflow: auto;
+  color: var(--pg-fg);
+  font-family: var(--pg-font);
+  font-feature-settings: "rlig" 1, "calt" 1;
+  line-height: 1.5;
+}
+
+html[data-pgt="dark"] .pg-root {
+    --pg-bg: hsl(40 6% 10%);
+    --pg-fg: hsl(40 18% 95%);
+    --pg-card: hsl(40 4% 15%);
+    --pg-muted: hsl(40 5% 18%);
+    --pg-muted-fg: hsl(40 6% 66%);
+    --pg-border: hsl(40 5% 22%);
+    --pg-divider: hsl(40 5% 13%);
+    --pg-edge: hsl(40 5% 42%);
+    --pg-chip: rgb(255 255 255 / 0.06);
+    --pg-amber: hsl(38 92% 70%);
+    --pg-amber-bg: rgb(245 158 11 / 0.18);
+    --pg-emerald: hsl(158 64% 62%);
+    --pg-shadow-card: 0 0 0 1px rgb(255 255 255 / 0.06);
+  }
+
+.pg-col {
+  max-width: 768px;
+  margin: 0 auto;
+  padding: 16px 14px 24px;
+}
+
+.pg-section + .pg-section {
+  margin-top: 24px;
+}
+
+.pg-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.pg-section--members .pg-head {
+  margin-bottom: 12px;
+}
+
+.pg-head h2 {
+  margin: 0;
+  min-width: 0;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pg-head-side {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+}
+
+.pg-count,
+.pg-meta {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--pg-muted-fg);
+  font-variant-numeric: tabular-nums;
+}
+
+.pg-iconbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--pg-muted-fg);
+  cursor: pointer;
+}
+
+.pg-iconbtn:hover {
+  background: var(--pg-chip);
+  color: var(--pg-fg);
+}
+
+/* ── canvas ────────────────────────────────────────────────────────────── */
+
+.pg-canvas {
+  position: relative;
+  height: 420px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--pg-muted) 20%, var(--pg-bg));
+}
+
+.pg-canvas.is-expanded {
+  flex: 1;
+  min-width: 0;
+  height: 60dvh;
+}
+
+/* Inline stand-in while the dialog holds the only canvas. */
+.pg-canvas--placeholder { background: color-mix(in srgb, var(--pg-muted) 20%, transparent); }
+
+.pg-root .react-flow__edge-path {
+  stroke: var(--pg-edge);
+  stroke-width: 1.5;
+}
+
+.pg-edge-path {
+  stroke: var(--pg-edge);
+  stroke-width: 1.5;
+}
+
+.pg-edge-path.is-dashed {
+  stroke-dasharray: 5 4;
+}
+
+.pg-root .react-flow__controls {
+  box-shadow: var(--pg-shadow-card);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.pg-root .react-flow__controls-button {
+  background: var(--pg-card);
+  border-bottom: 1px solid var(--pg-divider);
+  color: var(--pg-fg);
+  width: 22px;
+  height: 22px;
+}
+
+.pg-root .react-flow__attribution {
+  display: none;
+}
+
+/* ── node card ─────────────────────────────────────────────────────────── */
+
+.pg-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 248px;
+  height: 96px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--pg-card);
+  box-shadow: var(--pg-shadow-card);
+  transition: box-shadow 150ms, background-color 150ms, opacity 150ms;
+}
+
+.pg-card:hover {
+  background: color-mix(in srgb, var(--pg-fg) 2%, var(--pg-card));
+}
+
+.pg-card.is-selected {
+  box-shadow: var(--pg-shadow-card), 0 0 0 2px color-mix(in srgb, var(--pg-fg) 25%, transparent);
+}
+
+.pg-card.is-reference {
+  border: 1px dashed var(--pg-muted-fg);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.08);
+  opacity: 0.8;
+}
+
+.pg-card-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pg-card-row--identity {
+  height: 24px;
+}
+
+.pg-card-row--meta {
+  height: 18px;
+  font-size: 11px;
+  line-height: 1;
+  color: var(--pg-muted-fg);
+}
+
+.pg-card-row--amount {
+  height: 18px;
+  font-size: 11px;
+  line-height: 1;
+  color: var(--pg-muted-fg);
+  font-variant-numeric: tabular-nums;
+}
+
+.pg-card-chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: var(--pg-chip);
+  color: var(--pg-fg);
+}
+
+.pg-card-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 20px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pg-card-meta {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pg-pill {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--pg-chip);
+}
+
+.pg-universe {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  /* Fixed 224×32, exactly what ELK lays the pill out at. A max-width here
+     would let the content shrink the box while the routed edge still starts
+     at x=224. */
+  width: 224px;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px dashed color-mix(in srgb, var(--pg-muted-fg) 40%, transparent);
+  border-radius: 999px;
+  font-size: 12px;
+  line-height: 1;
+  color: var(--pg-muted-fg);
+}
+
+.pg-universe-detail {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+/* ── member list ───────────────────────────────────────────────────────── */
+
+.pg-list {
+  margin: 0 -12px;
+}
+
+.pg-row {
+  position: relative;
+  padding: 14px 12px;
+  border-top: 1px solid var(--pg-divider);
+}
+
+.pg-row:first-child {
+  border-top: 0;
+}
+
+.pg-row:hover {
+  background: color-mix(in srgb, var(--pg-muted) 40%, transparent);
+}
+
+.pg-row-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.pg-row-title h3 {
+  margin: 0;
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.375;
+  overflow-wrap: anywhere;
+}
+
+.pg-rank {
+  margin-right: 6px;
+  color: var(--pg-muted-fg);
+  font-variant-numeric: tabular-nums;
+}
+
+.pg-title-link {
+  color: inherit;
+  text-decoration: none;
+  text-underline-offset: 2px;
+}
+
+.pg-title-link:hover {
+  text-decoration: underline;
+}
+
+.pg-date {
+  flex: none;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--pg-muted-fg);
+  font-variant-numeric: tabular-nums;
+}
+
+.pg-row-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: 6px;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--pg-muted-fg);
+}
+
+.pg-row-meta code {
+  flex: none;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.pg-dot {
+  flex: none;
+  opacity: 0.4;
+}
+
+.pg-author {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pg-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-top: 8px;
+  margin-left: -6px;
+  color: var(--pg-muted-fg);
+}
+
+.pg-row-actions .pg-iconbtn {
+  width: 24px;
+  height: 24px;
+  color: var(--pg-muted-fg);
+}
+
+.pg-row-actions .pg-iconbtn:hover {
+  color: var(--pg-fg);
+}
+
+.pg-foot {
+  margin: 10px 0 0;
+  text-align: center;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--pg-muted-fg);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── expanded overlay ──────────────────────────────────────────────────── */
+
+.pg-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 950;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgb(0 0 0 / 0.35);
+}
+
+.pg-modal {
+  display: flex;
+  flex-direction: column;
+  width: min(1200px, 100%);
+  max-height: calc(100vh - 48px);
+  padding: 16px;
+  border-radius: 14px;
+  background: var(--pg-bg);
+  box-shadow: 0 20px 60px rgb(0 0 0 / 0.25);
+  overflow: auto;
+}
+
+/* React Flow handles double as port dots (inert, not draggable). */
+.pg-root .react-flow__handle {
+  width: 9px;
+  height: 9px;
+  min-width: 0;
+  min-height: 0;
+  border-radius: 999px;
+  border: 1px solid var(--pg-edge);
+  background: var(--pg-bg);
+  pointer-events: none;
+}
+
+/*
+ * Scoped box-sizing reset. The dsh shell is not Tailwind and does not set a
+ * global border-box; without this the cards render 248+padding wide, while ELK
+ * routes to the 248×96 box it was given —which reads as "edges miss the card".
+ */
+.pg-root,
+.pg-root *,
+.pg-root *::before,
+.pg-root *::after {
+  box-sizing: border-box;
+}
+
+/* ── ingestion page ────────────────────────────────────────────────────── */
+
+.pg-year {
+  min-width: 36px;
+  text-align: center;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.pg-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.pg-preset {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 10px;
+  border: 1px solid var(--pg-border);
+  border-radius: 999px;
+  background: var(--pg-card);
+  color: var(--pg-fg);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.pg-preset:hover { background: var(--pg-muted); }
+
+.pg-preset-tag { font-size: 10px; color: var(--pg-muted-fg); }
+
+.pg-input {
+  flex: 1;
+  min-width: 0;
+  height: 28px;
+  padding: 0 8px;
+  border: 1px solid var(--pg-border);
+  border-radius: 6px;
+  background: var(--pg-card);
+  color: var(--pg-fg);
+  font: inherit;
+  font-size: 12px;
+}
+
+.pg-input:focus { outline: 2px solid var(--pg-fg); outline-offset: -1px; }
+
+.pg-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--pg-border);
+  border-radius: 6px;
+  background: var(--pg-card);
+  color: var(--pg-fg);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.pg-btn:hover:not(:disabled) { background: var(--pg-muted); }
+.pg-btn:disabled { opacity: 0.5; cursor: default; }
+
+.pg-btn-primary {
+  border-color: var(--pg-fg);
+  background: var(--pg-fg);
+  color: var(--pg-bg);
+}
+
+.pg-btn-primary:hover:not(:disabled) { background: color-mix(in srgb, var(--pg-fg) 88%, var(--pg-bg)); }
+
+.pg-btn-quiet { height: 24px; font-size: 11px; }
+
+.pg-hint {
+  margin: 8px 0 0;
+  font-size: 11px;
+  line-height: 1.55;
+  color: var(--pg-muted-fg);
+}
+
+.pg-cal-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin-bottom: 20px;
+}
+
+.pg-legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--pg-muted-fg);
+  font-variant-numeric: tabular-nums;
+}
+
+.pg-legend-value { font-weight: 500; color: var(--pg-fg); }
+
+.pg-legend-zero { color: color-mix(in srgb, var(--pg-muted-fg) 70%, transparent); }
+
+.pg-dot-legend {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--pg-muted-fg);
+}
+
+.pg-dot-legend.is-done { background: #10b981; }
+.pg-dot-legend.is-running { background: #3b82f6; }
+.pg-dot-legend.is-partial { background: #f59e0b; }
+.pg-dot-legend.is-missing { background: color-mix(in srgb, var(--pg-muted-fg) 40%, transparent); }
+.pg-dot-legend.is-failed { background: #ef4444; }
+
+/* Columns follow the pane's own width (not the window's): 2, 3 or 4 month
+   blocks that stretch to fill it. Cells stay 28px tall and take 1fr of the
+   month width. */
+.pg-cal-months {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px 24px;
+}
+
+.pg-cal-month-title {
+  margin-bottom: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--pg-muted-fg);
+}
+
+.pg-cal-weekdays,
+.pg-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.pg-cal-grid { margin-top: 4px; }
+
+.pg-cal-weekdays div {
+  text-align: center;
+  font-size: 10px;
+  color: var(--pg-muted-fg);
+  opacity: 0.6;
+}
+
+.pg-cal-blank { height: 28px; }
+
+.pg-cal-day {
+  display: grid;
+  place-items: center;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--pg-muted) 60%, transparent);
+  color: color-mix(in srgb, var(--pg-muted-fg) 50%, transparent);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+.pg-cal-day.is-done {
+  background: color-mix(in srgb, #10b981 15%, transparent);
+  color: #047857;
+}
+
+.pg-cal-day.is-running {
+  background: color-mix(in srgb, #3b82f6 15%, transparent);
+  color: #1d4ed8;
+  animation: pg-pulse 1.6s ease-in-out infinite;
+}
+
+.pg-cal-day.is-failed {
+  background: color-mix(in srgb, #ef4444 15%, transparent);
+  color: #b91c1c;
+}
+
+.pg-cal-day.is-partial {
+  background: color-mix(in srgb, #f59e0b 15%, transparent);
+  color: #b45309;
+}
+
+.pg-cal-day.is-today {
+  font-weight: 700;
+  box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--pg-fg) 50%, transparent), 0 0 0 2.5px var(--pg-bg);
+}
+
+.pg-cal-day.is-selected { box-shadow: 0 0 0 2px var(--pg-fg); }
+.pg-cal-day:hover { box-shadow: 0 0 0 2px color-mix(in srgb, var(--pg-fg) 20%, transparent); }
+
+.pg-spin { animation: pg-rotate 1s linear infinite; }
+
+.pg-error {
+  margin: 8px 0 0;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #b91c1c;
+}
+
+@keyframes pg-rotate { to { transform: rotate(360deg); } }
+
+@keyframes pg-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
+
+html[data-pgt="dark"] .pg-cal-day.is-done { color: #6ee7b7; }
+  html[data-pgt="dark"] .pg-cal-day.is-running { color: #93c5fd; }
+  html[data-pgt="dark"] .pg-cal-day.is-failed { color: #fca5a5; }
+html[data-pgt="dark"] .pg-cal-day.is-partial { color: #fbbf24; }
+  html[data-pgt="dark"] .pg-error { color: #fca5a5; }
+
+/* ── header split entry ────────────────────────────────────────────────── */
+
+.pg-split {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: stretch;
+  height: 24px;
+  border: 1px solid rgba(0, 0, 0, 0.16);
+  border-radius: 8px;
+  background: transparent;
+  color: rgb(15, 17, 21);
+  overflow: hidden;
+}
+
+.pg-split-main,
+.pg-split-chevron {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.pg-split-main { width: 23px; padding: 3px 5px; }
+
+.pg-split-chevron {
+  width: 18px;
+  border-left: 1px solid rgba(0, 0, 0, 0.16);
+  color: rgb(97, 102, 107);
+}
+
+.pg-split-main:hover,
+.pg-split-chevron:hover { background: rgba(0, 0, 0, 0.05); }
+
+html[data-pgt="dark"] .pg-split { border-color: rgba(255, 255, 255, 0.16); color: rgb(244, 242, 238); }
+  html[data-pgt="dark"] .pg-split-chevron { color: rgba(255, 255, 255, 0.55); }
+  html[data-pgt="dark"] .pg-split-main:hover,
+  html[data-pgt="dark"] .pg-split-chevron:hover { background: rgba(255, 255, 255, 0.06); }
+
+html[data-pgt="dark"] .pg-split-chevron { border-left-color: rgba(255, 255, 255, 0.16); }
+
+/* Menu is portalled to <body>, so it carries its own tokens. Its rows include
+   an <a> (About): without border-box the anchor's 4px vertical padding is added
+   on top of the 30px height, which reads as a much taller row. */
+.pg-menu,
+.pg-menu * { box-sizing: border-box; }
+
+/* Menu is portalled to <body>, so it carries its own tokens. */
+.pg-menu {
+  position: fixed;
+  z-index: 1200;
+  min-width: 148px;
+  padding: 4px;
+  border: 0;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 0 0 0.5px rgb(0 0 0 / 0.04), 0 8px 24px rgb(0 0 0 / 0.08), 0 1px 3px rgb(0 0 0 / 0.06);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI Variable Text", "Segoe UI",
+    Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI",
+    "Microsoft YaHei", "Noto Sans CJK SC", "Noto Sans SC", sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+.pg-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  height: 30px;
+  padding: 4px 8px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: #141312;
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.pg-menu-item:hover { background: hsl(40 5% 95.8%); }
+
+.pg-menu-label { flex: 1; }
+
+.pg-menu-separator {
+  display: block;
+  height: 1px;
+  margin: 4px 6px;
+  background: hsl(40 4% 89.5%);
+}
+
+html[data-pgt="dark"] .pg-menu {
+    border-color: hsl(40 5% 22%);
+    background: hsl(40 4% 15%);
+    color: hsl(40 18% 95%);
+  }
+  html[data-pgt="dark"] .pg-menu-item { color: hsl(40 18% 95%); }
+  html[data-pgt="dark"] .pg-menu-item:hover { background: hsl(40 5% 20%); }
+  html[data-pgt="dark"] .pg-menu-separator { background: hsl(40 5% 22%); }
+
+/* ── history (set-flow) list ───────────────────────────────────────────── */
+
+.pg-sf-grid {
+  display: grid;
+  grid-auto-rows: 1fr;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+.pg-sf-wrap { height: 100%; }
+
+.pg-sf-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 12px 16px 10px;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--pg-muted) 40%, transparent);
+  transition: background-color 150ms, transform 150ms;
+}
+
+.pg-sf-card:hover { background: color-mix(in srgb, var(--pg-muted) 60%, transparent); }
+.pg-sf-card { cursor: pointer; }
+.pg-sf-card:focus-visible { outline: 2px solid var(--pg-fg); outline-offset: 2px; }
+.pg-sf-card:hover .pg-sf-title { text-decoration: underline; text-underline-offset: 2px; }
+.pg-sf-card:active { transform: scale(0.99); }
+
+.pg-sf-head { padding-bottom: 12px; }
+
+.pg-sf-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+}
+
+.pg-sf-chip {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: var(--pg-chip);
+  color: var(--pg-muted-fg);
+}
+
+.pg-sf-title {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--pg-fg);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  text-align: left;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.pg-sf-previews {
+  margin-top: 10px;
+  min-height: 60px;
+  font-size: 12px;
+  line-height: 20px;
+  color: var(--pg-muted-fg);
+}
+
+.pg-sf-preview {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+}
+
+.pg-sf-preview-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pg-sf-preview-count {
+  flex: none;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.7;
+}
+
+.pg-sf-foot {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: auto -16px 0;
+  min-height: 20px;
+  padding: 8px 16px 0;
+  border-top: 1px solid var(--pg-divider);
+  font-size: 11px;
+  line-height: 20px;
+  color: var(--pg-muted-fg);
+}
+
+.pg-sf-foot-num,
+.pg-sf-foot-time { font-variant-numeric: tabular-nums; }
+.pg-sf-foot-time { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pg-sf-dot { color: color-mix(in srgb, var(--pg-muted-fg) 40%, transparent); }
+
+/* ── category tag field ────────────────────────────────────────────────── */
+
+.pg-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid var(--pg-border);
+  border-radius: 16px;
+  background: var(--pg-bg);
+  font-size: 14px;
+  cursor: text;
+  transition: border-color 150ms;
+}
+
+.pg-tags:focus-within { border-color: color-mix(in srgb, var(--pg-fg) 30%, transparent); }
+
+.pg-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: rgb(0 0 0 / 0.05);
+  color: color-mix(in srgb, var(--pg-fg) 80%, transparent);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.pg-tag button {
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--pg-muted-fg);
+  cursor: pointer;
+}
+
+.pg-tag button:hover { color: var(--pg-fg); }
+
+.pg-tags input {
+  flex: 1;
+  min-width: 96px;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--pg-fg);
+  font: inherit;
+  font-size: 12px;
+}
+
+.pg-tags input::placeholder { color: var(--pg-muted-fg); }
+
+html[data-pgt="dark"] .pg-tag { background: rgb(255 255 255 / 0.1); }
+
+/* ── hover tip ─────────────────────────────────────────────────────────── */
+
+.pg-tip { position: relative; display: inline-flex; }
+
+.pg-tip::after {
+  content: attr(data-tip);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 6px);
+  z-index: 40;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: var(--pg-fg);
+  color: var(--pg-bg);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  opacity: 0;
+  transform: translate(-50%, 2px);
+  pointer-events: none;
+  transition: opacity 120ms ease, transform 120ms ease;
+}
+
+.pg-tip:hover::after,
+.pg-tip:focus-within::after {
+  opacity: 1;
+  transform: translate(-50%, 0);
+  transition-delay: 150ms;
+}
+
+html[data-pgt="dark"] .pg-tip::after {
+  background: var(--pg-bg);
+  color: var(--pg-fg);
+}
+
+/* ── card state: backend chip, undecided pill, job status ──────────────── */
+
+.pg-backend {
+  padding: 0 6px;
+  border-radius: 4px;
+  background: var(--pg-muted);
+  color: var(--pg-muted-fg);
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 16px;
+  letter-spacing: 0.02em;
+}
+
+.pg-pill--undecided {
+  background: color-mix(in srgb, #f59e0b 15%, transparent);
+  color: #b45309;
+}
+
+html[data-pgt="dark"] .pg-pill--undecided { color: #fbbf24; }
+
+.pg-card-state {
+  display: inline-grid;
+  place-items: center;
+  margin-left: auto;
+  color: var(--pg-muted-fg);
+}
+
+.pg-card-state.is-failed { color: #dc2626; }
+
+.pg-card.is-failed { border-color: color-mix(in srgb, #ef4444 45%, transparent); }
+
+/* ── node detail dialog ────────────────────────────────────────────────── */
+
+/* The click-catching wrapper owns the width: shrink-to-fit around a
+   percentage width would size it to the content and leave the card on its
+   left edge, off the overlay's centre. */
+.pg-inspector-wrap {
+  display: flex;
+  width: min(448px, 100%);
+}
+
+.pg-inspector {
+  width: 100%;
+  max-height: 85vh;
+  padding: 30px;
+  border: 1px solid rgb(255 255 255 / 0.6);
+  border-radius: 16px;
+  background: var(--pg-bg);
+  box-shadow:
+    0 0 0 1px rgb(0 0 0 / 0.04),
+    0 2px 8px -4px rgb(2 6 23 / 0.18),
+    0 1px 3px -1px rgb(2 6 23 / 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+  position: relative;
+}
+
+.pg-inspector::before {
+  content: "";
+  position: absolute;
+  inset: 0 20px auto;
+  height: 1px;
+  border-radius: 999px;
+  background: linear-gradient(to right, transparent, rgb(255 255 255 / 0.85), transparent);
+  pointer-events: none;
+}
+
+html[data-pgt="dark"] .pg-inspector {
+  border-color: rgb(255 255 255 / 0.06);
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.06), 0 2px 8px -4px rgb(0 0 0 / 0.5);
+}
+
+.pg-inspector-head { display: flex; align-items: center; gap: 12px; }
+
+.pg-inspector-glyph {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: var(--pg-muted);
+  color: var(--pg-fg);
+}
+
+.pg-inspector-head h3 {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 22.5px;
+  letter-spacing: -0.01em;
+  color: var(--pg-fg);
+  overflow-wrap: anywhere;
+}
+
+.pg-inspector-close {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: var(--pg-muted);
+  color: var(--pg-fg);
+  cursor: pointer;
+}
+
+.pg-inspector-body { display: grid; gap: 16px; }
+
+.pg-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+}
+
+.pg-stats.is-two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+.pg-stat {
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--pg-muted) 40%, transparent);
+}
+
+.pg-stat dt { font-size: 11px; line-height: 16.5px; color: var(--pg-muted-fg); }
+
+.pg-stat dd {
+  margin: 2px 0 0;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  color: var(--pg-fg);
+}
+
+.pg-stat dd code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 14px; }
+
+.pg-num { font-variant-numeric: tabular-nums; }
+
+.pg-panel {
+  padding: 12px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--pg-muted) 40%, transparent);
+}
+
+.pg-panel h4 {
+  margin: 0 0 4px;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 16.5px;
+  color: var(--pg-muted-fg);
+}
+
+.pg-kv {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+/* Labels (class names, "judging progress") can run long: clip them to one line. */
+.pg-kv dt { flex: none; width: 5.5em; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--pg-muted-fg); }
+.pg-kv dd { margin: 0; min-width: 0; color: var(--pg-fg); }
+
+.pg-panel-text {
+  margin: 0;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--pg-fg);
+}
+
+.pg-export {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  height: 36px;
+  margin-top: 0;
+  padding: 0 16px;
+  border: 1px solid var(--pg-border);
+  border-radius: 8px;
+  background: var(--pg-bg);
+  color: var(--pg-fg);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.pg-export:hover { background: var(--pg-muted); }
+
+/* Hover affordance on graph cards: the info button holds its slot but is invisible. */
+.pg-card-info {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--pg-muted-fg);
+  opacity: 0;
+  cursor: pointer;
+  transition: opacity 120ms ease, color 120ms ease;
+}
+
+.pg-card:hover .pg-card-info,
+.pg-card-info:focus-visible { opacity: 1; }
+
+.pg-card-info:hover { color: var(--pg-fg); }
+
+/* ── harvest dialog: date range ────────────────────────────────────────── */
+
+.pg-harvest {
+  width: min(560px, 100%);
+  max-height: 85vh;
+  padding: 30px;
+  border: 1px solid rgb(255 255 255 / 0.6);
+  border-radius: 16px;
+  background: var(--pg-bg);
+  box-shadow:
+    0 0 0 1px rgb(0 0 0 / 0.04),
+    0 2px 8px -4px rgb(2 6 23 / 0.18),
+    0 1px 3px -1px rgb(2 6 23 / 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+}
+
+html[data-pgt="dark"] .pg-harvest {
+  border-color: rgb(255 255 255 / 0.06);
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.06), 0 2px 8px -4px rgb(0 0 0 / 0.5);
+}
+
+.pg-harvest-head { display: flex; align-items: center; gap: 12px; }
+
+.pg-harvest-head h3 {
+  flex: 1;
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 22.5px;
+  letter-spacing: -0.01em;
+  color: var(--pg-fg);
+}
+
+.pg-harvest .pg-panel { margin: 0; }
+
+.pg-tags.is-readonly { border: 0; padding: 0; min-height: 0; background: transparent; cursor: default; }
+
+.pg-range { display: flex; align-items: flex-end; gap: 12px; }
+
+.pg-range label { display: grid; gap: 4px; flex: 1; min-width: 0; }
+
+.pg-range label > span { font-size: 11px; line-height: 16.5px; color: var(--pg-muted-fg); }
+
+.pg-datefield {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--pg-border);
+  border-radius: 8px;
+  background: var(--pg-bg);
+  color: var(--pg-fg);
+  font: inherit;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  text-align: left;
+  cursor: pointer;
+}
+
+.pg-datefield:hover { background: var(--pg-muted); }
+.pg-datefield-icon { flex: none; color: var(--pg-muted-fg); }
+.pg-datefield span.is-empty { color: var(--pg-muted-fg); }
+
+/* Month popover of the date field, portalled into <body>. */
+.pg-calpop {
+  position: fixed;
+  z-index: 1300;
+  width: 264px;
+  padding: 12px;
+  border: 1px solid var(--pg-border);
+  border-radius: 6px;
+  background: var(--pg-bg);
+  box-shadow: 0 12px 32px -12px rgb(2 6 23 / 0.24), 0 2px 8px -4px rgb(2 6 23 / 0.12);
+}
+
+.pg-calpop-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--pg-fg);
+}
+
+.pg-calpop-nav { display: flex; gap: 2px; }
+
+.pg-calpop-nav button {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--pg-muted-fg);
+  cursor: pointer;
+}
+
+.pg-calpop-nav button:hover { background: var(--pg-muted); color: var(--pg-fg); }
+
+.pg-calpop-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 32px);
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--pg-muted-fg);
+  text-align: center;
+}
+
+.pg-calpop-weekdays span { height: 28px; line-height: 28px; }
+
+.pg-calpop-days {
+  display: grid;
+  grid-template-columns: repeat(7, 32px);
+  justify-content: center;
+}
+
+.pg-calpop-day {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--pg-fg);
+  font: inherit;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+.pg-calpop-day:hover { background: var(--pg-muted); }
+.pg-calpop-day.is-today { box-shadow: inset 0 0 0 1px var(--pg-border); }
+.pg-calpop-day.is-selected { background: var(--pg-fg); color: var(--pg-bg); }
+.pg-calpop-day:disabled { color: color-mix(in srgb, var(--pg-muted-fg) 45%, transparent); cursor: default; }
+.pg-calpop-day:disabled:hover { background: transparent; }
+
+.pg-range-sep { padding-bottom: 10px; color: var(--pg-muted-fg); }
+
+.pg-harvest-foot { display: flex; justify-content: flex-end; gap: 8px; }
+
+/* ── harvest job history ───────────────────────────────────────────────── */
+
+.pg-jobs { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--pg-divider); }
+
+.pg-job {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--pg-divider);
+}
+
+.pg-job-dot {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  margin-top: 7px;
+  border-radius: 999px;
+  background: var(--pg-muted-fg);
+}
+
+.pg-job-dot.is-done { background: #10b981; }
+.pg-job-dot.is-running {
+  background: #3b82f6;
+  animation: pg-job-breathe 1.8s ease-in-out infinite;
+}
+
+@keyframes pg-job-breathe {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgb(59 130 246 / 0.35); }
+  50% { opacity: 0.5; box-shadow: 0 0 0 3px rgb(59 130 246 / 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pg-job-dot.is-running { animation: none; }
+}
+.pg-job-dot.is-failed { background: #ef4444; }
+.pg-job-dot.is-canceled { background: color-mix(in srgb, var(--pg-muted-fg) 55%, transparent); }
+
+.pg-job-main { flex: 1; min-width: 0; }
+
+.pg-job-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--pg-fg);
+  font-variant-numeric: tabular-nums;
+}
+
+.pg-job-days { font-size: 11px; font-weight: 400; color: var(--pg-muted-fg); }
+
+.pg-job-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 2px;
+  font-size: 11px;
+  color: var(--pg-muted-fg);
+  font-variant-numeric: tabular-nums;
+}
+
+.pg-job-error { margin: 4px 0 0; font-size: 11px; line-height: 16px; color: #dc2626; }
+
+.pg-job-side {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--pg-muted-fg);
+  font-variant-numeric: tabular-nums;
+}
+
+.pg-jobs-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 28px 0 24px;
+  color: var(--pg-muted-fg);
+  font-size: 12px;
+}
+
+.pg-jobs-empty svg { opacity: 0.45; }
+
+/* ── calendar view switcher + count cells ──────────────────────────────── */
+
+.pg-seg {
+  display: inline-flex;
+  padding: 2px;
+  border: 1px solid var(--pg-border);
+  border-radius: 8px;
+  background: var(--pg-muted);
+}
+
+.pg-seg button {
+  height: 24px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--pg-muted-fg);
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.pg-seg button.is-active {
+  background: var(--pg-bg);
+  color: var(--pg-fg);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.08);
+}
+
+.pg-cal-day.is-count {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.pg-cal-day.is-count:hover { filter: brightness(0.97); }
+
+.pg-cal-month-sum { font-weight: 400; color: var(--pg-muted-fg); font-variant-numeric: tabular-nums; }
+
+/* ── title abstract card ───────────────────────────────────────────────── */
+/* A 26rem rounded card that fades and zooms in over 150ms. It lives in <body>,
+   so it defines its own tokens. */
+
+.pg-abstract-anchor { display: inline; }
+
+.pg-abstract {
+  --pg-pop-bg: hsl(0 0% 100%);
+  --pg-pop-fg: hsl(40 4% 10%);
+  --pg-pop-muted-fg: hsl(40 3% 45%);
+  --pg-pop-border: hsl(40 4% 89.5%);
+
+  position: fixed;
+  z-index: 1400;
+  width: 26rem;
+  max-width: calc(100vw - 16px);
+  box-sizing: border-box;
+  overflow: hidden;
+  border: 1px solid var(--pg-pop-border);
+  border-radius: 12px;
+  background: var(--pg-pop-bg);
+  color: var(--pg-pop-fg);
+  box-shadow: 0 8px 13px -5px rgb(0 0 0 / 0.035), 0 3px 5px -3px rgb(0 0 0 / 0.035);
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI Variable Text", "Segoe UI",
+    Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI",
+    "Microsoft YaHei", "Noto Sans CJK SC", "Noto Sans SC", sans-serif;
+  animation: pg-abstract-in 150ms ease-out;
+}
+
+html[data-pgt="dark"] .pg-abstract {
+  --pg-pop-bg: hsl(40 5% 21%);
+  --pg-pop-fg: hsl(40 18% 95%);
+  --pg-pop-muted-fg: hsl(40 6% 66%);
+  --pg-pop-border: hsl(40 5% 16%);
+}
+
+@keyframes pg-abstract-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.pg-abstract-label {
+  margin: 0;
+  padding: 12px 16px 0;
+  color: var(--pg-pop-muted-fg);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.pg-abstract-body {
+  max-height: 240px;
+  margin: 0;
+  padding: 8px 16px 12px;
+  overflow-y: auto;
+  color: color-mix(in srgb, var(--pg-pop-fg) 90%, transparent);
+  font-size: 13px;
+  line-height: 1.625;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+
+.pg-abstract-empty {
+  margin: 0;
+  padding: 12px 16px;
+  color: var(--pg-pop-muted-fg);
+  font-size: 13px;
+  line-height: 1.625;
+}
+
+/* ── floating tip layer (portal): same look as .pg-tip::after ──────────── */
+
+.pg-tipbox {
+  position: fixed;
+  z-index: 1400;
+  max-width: 300px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgb(27 26 24);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.45;
+  white-space: normal;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  pointer-events: none;
+}
+
+html[data-pgt="dark"] .pg-tipbox {
+  background: rgb(245 244 244);
+  color: rgb(27 26 24);
+}
+
+/* ── settings ──────────────────────────────────────────────────────────── */
+
+.pg-settings-card { padding: 14px; }
+
+.pg-settings-lead {
+  margin: 0 0 2px;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--pg-muted-fg);
+}
+
+.pg-field {
+  display: grid;
+  gap: 4px;
+  margin-top: 12px;
+  min-width: 0;
+}
+
+.pg-field > span {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--pg-muted-fg);
+}
+
+.pg-field .pg-input { flex: none; width: 100%; box-sizing: border-box; }
+
+.pg-field-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  column-gap: 10px;
+}
+
+.pg-field > .pg-settings-readonly {
+  display: flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 8px;
+  border-radius: 6px;
+  background: var(--pg-chip);
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--pg-fg);
+}
+
+.pg-status {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 4px;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: var(--pg-amber-bg);
+  color: var(--pg-amber);
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.pg-status.is-ok {
+  background: color-mix(in srgb, var(--pg-emerald) 12%, transparent);
+  color: var(--pg-emerald);
+}
+
+.pg-settings-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 14px;
+}
+
+.pg-settings-card .pg-presets + .pg-tags { margin-top: 0; }
+.pg-settings-card .pg-settings-actions:has(.pg-btn-quiet) { margin-top: 8px; }
+
+.pg-settings-msg {
+  margin-right: auto;
+  font-size: 11px;
+  color: var(--pg-muted-fg);
+}
+
+.pg-settings-msg.is-error { color: #b91c1c; }
+html[data-pgt="dark"] .pg-settings-msg.is-error { color: #fca5a5; }
+
+/* ── harvest dialog notice ─────────────────────────────────────────────── */
+
+.pg-notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--pg-amber-bg);
+  color: var(--pg-amber);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.pg-notice > span { flex: 1; min-width: 0; }
+
+.pg-notice-link {
+  flex: none;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+/* ── history empty state ───────────────────────────────────────────────── */
+
+.pg-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 8px;
+  padding: 40px 20px 36px;
+  border: 1px dashed var(--pg-border);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--pg-muted) 30%, transparent);
+  text-align: center;
+}
+
+.pg-empty-icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 14px;
+  border-radius: 12px;
+  background: var(--pg-card);
+  box-shadow: var(--pg-shadow-card);
+  color: var(--pg-muted-fg);
+}
+
+.pg-empty-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  letter-spacing: -0.01em;
+}
+
+.pg-empty-text {
+  margin: 4px 0 12px;
+  max-width: 260px;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--pg-muted-fg);
+}
+
+.pg-empty-code {
+  padding: 3px 10px;
+  border-radius: 6px;
+  background: var(--pg-chip);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 12px;
+  color: var(--pg-fg);
+}
+
+/* ── judgement lists ───────────────────────────────────────────────────── */
+
+/* Pending banner above the graph: amber while papers wait, red once judging failed. */
+.pg-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 24px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: color-mix(in srgb, #f59e0b 10%, transparent);
+  color: var(--pg-amber);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.pg-banner svg { flex: none; }
+.pg-banner p { flex: 1; min-width: 0; margin: 0; font-variant-numeric: tabular-nums; }
+.pg-banner.is-failed { background: color-mix(in srgb, #dc2626 10%, transparent); color: #b91c1c; }
+html[data-pgt="dark"] .pg-root .pg-banner.is-failed { color: hsl(0 84% 72%); }
+
+.pg-judgment-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+/* Plain-text tabs: two weights of text, no track, no underline. */
+.pg-texttabs { display: flex; align-items: center; gap: 24px; }
+
+.pg-texttabs button {
+  flex: none;
+  padding: 4px 0;
+  border: 0;
+  background: none;
+  color: var(--pg-muted-fg);
+  font: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 150ms;
+}
+
+.pg-texttabs button:hover { color: color-mix(in srgb, var(--pg-fg) 80%, transparent); }
+.pg-texttabs button.is-active { color: var(--pg-fg); font-weight: 500; }
+
+.pg-backend {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--pg-muted) 60%, transparent);
+  color: var(--pg-muted-fg);
+  font-size: 12px;
+  line-height: 16px;
+  white-space: nowrap;
+}
+
+.pg-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--pg-muted-fg);
+  font-size: 12px;
+  line-height: 16px;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+}
+
+.pg-check-box {
+  display: inline-grid;
+  place-items: center;
+  width: 14px;
+  height: 14px;
+  border: 1px solid color-mix(in srgb, var(--pg-fg) 55%, transparent);
+  border-radius: 4px;
+  background: var(--pg-card);
+  color: var(--pg-bg);
+}
+
+.pg-check-box[aria-checked="true"] { border-color: var(--pg-fg); background: var(--pg-fg); }
+.pg-check-box:focus-visible { outline: 2px solid var(--pg-fg); outline-offset: 1px; }
+
+.pg-empty-note { margin: 0; font-size: 14px; line-height: 20px; color: var(--pg-muted-fg); }
+
+/* Footer: load more + shown while pages remain, the total once all are listed. */
+.pg-more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding-top: 14px;
+  font-size: 12px;
+  color: var(--pg-muted-fg);
+}
+
+.pg-btn-more { height: 32px; padding: 0 14px; font-size: 13px; }
+
+/* Probability rows: title, then the Jev conclusion. */
+.pg-row--reason { padding: 12px; }
+
+.pg-reason-title {
+  display: inline;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.375;
+  overflow-wrap: anywhere;
+}
+
+.pg-prob {
+  margin-top: 6px;
+  font-size: 12px;
+  line-height: 20px;
+  color: var(--pg-muted-fg);
+}
+
+.pg-prob-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; }
+.pg-prob-key { font-weight: 500; color: color-mix(in srgb, var(--pg-fg) 80%, transparent); }
+.pg-prob-all { margin-top: 2px; }
+
+.pg-prob-all summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 4px;
+  list-style: none;
+  cursor: pointer;
+}
+
+.pg-prob-all summary::-webkit-details-marker { display: none; }
+.pg-prob-all summary:hover { color: var(--pg-fg); }
+.pg-prob-all summary svg { transition: transform 200ms; }
+.pg-prob-all[open] summary svg { transform: rotate(180deg); }
+
+.pg-prob-table {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 2px 16px;
+  max-width: 256px;
+  margin: 6px 0 0;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--pg-muted) 40%, transparent);
+}
+
+.pg-prob-table div { display: contents; }
+.pg-prob-table dt { min-width: 0; overflow-wrap: anywhere; }
+.pg-prob-table dd { margin: 0; text-align: right; font-weight: 500; color: color-mix(in srgb, var(--pg-fg) 80%, transparent); }
+.pg-prob-all > p { margin: 4px 0 0; }
+
+/* Classifier results: category rows bleed 12px like the paper rows. */
+.pg-outputs { margin: 0 -12px; }
+.pg-outputs-list { display: flex; flex-direction: column; gap: 4px; }
+
+.pg-outputs-note {
+  margin: 0 0 12px;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--pg-muted-fg);
+}
+
+.pg-outputs > .pg-outputs-note { padding: 0 12px; margin-bottom: 8px; font-size: 12px; }
+
+.pg-output {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 12px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--pg-fg);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.pg-output:hover:not(:disabled) { background: var(--pg-muted); }
+.pg-output:disabled { cursor: default; opacity: 0.5; }
+.pg-output-name { min-width: 0; font-size: 14px; font-weight: 500; line-height: 20px; overflow-wrap: anywhere; }
+
+.pg-output-side {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 12px;
+  color: var(--pg-muted-fg);
+  font-size: 12px;
+}
+
+.pg-review { margin-top: 8px; }
+
+.pg-review summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  color: var(--pg-muted-fg);
+  font-size: 12px;
+  line-height: 16px;
+  list-style: none;
+  cursor: pointer;
+}
+
+.pg-review summary::-webkit-details-marker { display: none; }
+.pg-review summary:hover { background: color-mix(in srgb, var(--pg-muted) 40%, transparent); }
+.pg-review-side { display: flex; flex: none; align-items: center; gap: 6px; }
+.pg-review-chevron { transition: transform 200ms; }
+.pg-review[open] .pg-review-chevron { transform: rotate(180deg); }
+
+/* Push back into the content column; the list inside bleeds once on its own. */
+.pg-review-body { margin: 0 12px; padding-top: 16px; }
+.pg-review-hint { margin: 0 0 12px; font-size: 12px; line-height: 20px; color: var(--pg-muted-fg); }
+
+.pg-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 28px;
+  margin: 0 0 12px -4px;
+  padding: 0 4px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--pg-muted-fg);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.pg-back:hover { background: var(--pg-muted); color: var(--pg-fg); }
+
+@media (prefers-reduced-motion: reduce) {
+  .pg-prob-all summary svg, .pg-review-chevron, .pg-texttabs button { transition: none; }
+}
+
+/* ── expanded graph dialog ─────────────────────────────────────────────── */
+/* Wide rather than tall (the graph grows along x): up to 88rem, the canvas
+   60dvh. Node details are a 22rem column beside the canvas, not a second
+   dialog, fading in with a 4px slide from the right edge. */
+
+.pg-graph-dialog { width: min(88rem, calc(100vw - 32px)); overflow: hidden; }
+.pg-graph-dialog-body { display: flex; align-items: stretch; gap: 16px; min-width: 0; }
+
+.pg-inspector-pane {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  width: 22rem;
+  max-width: 45%;
+  height: 60dvh;
+  overflow: hidden;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--pg-muted) 40%, transparent);
+  animation: pg-pane-in 200ms ease-out both;
+}
+
+.pg-inspector-pane[data-state="closed"] { animation: pg-pane-out 200ms ease-out forwards; }
+.pg-inspector-pane .pg-inspector-head { gap: 10px; padding: 12px 12px 8px; }
+.pg-inspector-pane .pg-inspector-glyph { width: 28px; height: 28px; border-radius: 8px; background: var(--pg-chip); }
+.pg-inspector-pane .pg-inspector-head h3 { font-size: 14px; line-height: 20px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pg-inspector-pane .pg-inspector-close { background: transparent; color: var(--pg-muted-fg); }
+.pg-inspector-pane .pg-inspector-close:hover { background: var(--pg-muted); color: var(--pg-fg); }
+.pg-inspector-pane .pg-inspector-body { flex: 1; min-height: 0; overflow-y: auto; padding: 0 12px 16px; }
+
+@keyframes pg-pane-in { from { opacity: 0; transform: translateX(4px); } to { opacity: 1; transform: none; } }
+@keyframes pg-pane-out { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateX(4px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .pg-inspector-pane, .pg-inspector-pane[data-state="closed"] { animation: none; }
+}
