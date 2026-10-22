@@ -14,9 +14,10 @@
 
 import { fetch, type Dispatcher, type Response } from 'undici'
 
+import { MAX_JEV_BATCH_SIZE } from '../jev-defaults.ts'
 import type { Category, Decision, Thresholds } from './store.ts'
 
-const MAX_QUESTIONS = 60
+const MAX_QUESTIONS = MAX_JEV_BATCH_SIZE
 const MAX_INPUT_BYTES = 262_144
 const MAX_INPUT_TOKENS = 48_000
 const MAX_STATE_QUESTION_TOKENS = 24_000
@@ -30,6 +31,10 @@ export interface JevRuntime {
   baseUrl: string
   /** Model new judging nodes freeze; running nodes keep their own. */
   model: string
+  /** Requests a judging run keeps in flight. */
+  concurrency: number
+  /** Papers packed into one request at most. */
+  batchSize: number
   /** The Settings proxy (see ../ingest/network.ts); absent means direct. */
   dispatcher?: Dispatcher
 }

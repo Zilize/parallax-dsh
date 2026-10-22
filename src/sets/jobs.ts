@@ -41,9 +41,11 @@ import {
   type Thresholds,
 } from './store.ts'
 
-/** Candidates fetched per planning round; a round is packed into requests. */
-const ROUND = 240
-const CONCURRENCY = 2
+/**
+ * Candidates fetched per planning round at least; a round is packed into
+ * requests. Larger settings get larger rounds, so every worker has requests.
+ */
+const MIN_ROUND = 240
 /** One job may judge at most this many papers; narrow the parent first. */
 export const MAX_JUDGE_CANDIDATES = 20_000
 export const MAX_TRIAL = 40
@@ -120,17 +122,18 @@ async function runChunks(
       }
     }
   }
-  await Promise.all(Array.from({ length: Math.min(CONCURRENCY, chunks.length) }, worker))
+  await Promise.all(Array.from({ length: Math.min(runtime.concurrency, chunks.length) }, worker))
   if (failure !== undefined) throw failure
 }
 
-function packed(db: DatabaseSync, plan: Plan, ids: readonly string[]): Array<Array<{ id: string, paper: PaperEvidence }>> {
+/** Pack papers into requests of at most `plan.perRequest` (or the runtime's batch size) each. */
+function packed(db: DatabaseSync, plan: Plan, runtime: JevRuntime, ids: readonly string[]): Array<Array<{ id: string, paper: PaperEvidence }>> {
   const evidence = evidenceOf(db, ids)
   const items = ids.flatMap(id => {
     const paper = evidence.get(id)
     return paper === undefined ? [] : [{ id, paper }]
   })
-  return packChunks(items, chunk => plan.build(chunk.map(item => item.paper)), plan.perRequest)
+  return packChunks(items, chunk => plan.build(chunk.map(item => item.paper)), plan.perRequest ?? runtime.batchSize)
 }
 
 export interface TrialResult {
@@ -236,7 +239,7 @@ export class JudgeService {
     const plan = planFor({ ...parent, op: 'ai_filter', params: { criteria, model, thresholds } })
     const titles = new Map([...evidenceOf(this.db, ids)].map(([id, paper]) => [id, paper.title]))
     const result: TrialResult = { sample: ids.length, candidates, included: 0, papers: [], requests: 0, inputTokens: 0 }
-    await this.connected(runtime => runChunks(runtime, plan, packed(this.db, plan, ids), signal ?? new AbortController().signal, (chunkIds, response) => {
+    await this.connected(runtime => runChunks(runtime, plan, packed(this.db, plan, runtime, ids), signal ?? new AbortController().signal, (chunkIds, response) => {
       result.requests += 1
       result.inputTokens += response.inputTokens
       for (const decision of plan.decide(chunkIds, response)) {
@@ -301,9 +304,10 @@ export class JudgeService {
       await this.connected(async (runtime) => {
         for (;;) {
           controller.signal.throwIfAborted()
-          const ids = undecidedIds(this.db, set, ROUND)
+          const round = Math.max(MIN_ROUND, runtime.concurrency * (plan.perRequest ?? runtime.batchSize) * 2)
+          const ids = undecidedIds(this.db, set, round)
           if (ids.length === 0) break
-          const chunks = packed(this.db, plan, ids)
+          const chunks = packed(this.db, plan, runtime, ids)
           if (chunks.length === 0) break
           await runChunks(runtime, plan, chunks, controller.signal, (chunkIds, result) => {
             atomically(this.db, () => {

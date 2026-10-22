@@ -1,14 +1,18 @@
 // Host-half smoke test: no Cordis here, just the pieces the plugin touches
 // (ctx.effect, ctx.connection.fetch.register, ctx.tools, ctx.get('credentials')).
-// Runs the built lib/index.js against a throwaway DSH_HOME seeded with three
-// papers, and exits non-zero on the first failed check. No network is used.
+// Runs the built lib/index.js against a throwaway DSH_HOME seeded with a few
+// papers, and exits non-zero on the first failed check. Jev is a local fake
+// server; nothing leaves the machine.
 import assert from 'node:assert/strict'
 import { mkdtempSync, readFileSync } from 'node:fs'
+import { createServer } from 'node:http'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { DatabaseSync } from 'node:sqlite'
 
 process.env.DSH_HOME = mkdtempSync(join(tmpdir(), 'parallax-smoke-'))
+// The fake Jev server is local: never route it through a proxy from the environment.
+process.env.NO_PROXY = '127.0.0.1,localhost'
 const { apply } = await import('./lib/index.js')
 
 const routes = new Map()
@@ -120,6 +124,51 @@ check('export file', Array.isArray(list) && list.length === 3 && Array.isArray(l
 const route = routes.get('/api/parallax/export')
 const response = await route.fetch(new Request(`http://host/api/parallax/export?set=${union}`))
 check('export route', response.status === 200 && (await response.json()).length === 3)
+
+// Jev tuning: validated on save, and honoured by a real judging run.
+check('tuning defaults', settings.body.jev.concurrency === 2 && settings.body.jev.batchSize === 60)
+check('tuning rejects', (await call('/api/parallax/settings', post({ concurrency: 0 }))).status === 400
+  && (await call('/api/parallax/settings', post({ batchSize: 61 }))).status === 400
+  && (await call('/api/parallax/settings', post({ concurrency: 2.5 }))).status === 400)
+
+const jev = { inFlight: 0, peak: 0, largest: 0, requests: 0 }
+const server = createServer((request, response) => {
+  let raw = ''
+  request.on('data', (chunk) => { raw += chunk })
+  request.on('end', () => {
+    const { questions } = JSON.parse(raw)
+    const keys = Object.keys(questions)
+    jev.requests += 1
+    jev.inFlight += 1
+    jev.peak = Math.max(jev.peak, jev.inFlight)
+    jev.largest = Math.max(jev.largest, keys.length)
+    setTimeout(() => {
+      jev.inFlight -= 1
+      const answers = Object.fromEntries(keys.map((key, index) => [key, { type: 'noul', noul: index % 2 === 0 ? 0.9 : 0.1 }]))
+      response.writeHead(200, { 'content-type': 'application/json' })
+      response.end(JSON.stringify({ model: 'jev-test', usage: { input_tokens: 10, output_tokens: 1 }, answers }))
+    }, 40)
+  })
+})
+await new Promise(resolve => server.listen(0, '127.0.0.1', resolve))
+const tuned = await call('/api/parallax/settings', post({ baseUrl: `http://127.0.0.1:${server.address().port}`, concurrency: 3, batchSize: 4 }))
+check('tuning saves', tuned.body.jev.concurrency === 3 && tuned.body.jev.batchSize === 4)
+
+const extra = new DatabaseSync(join(process.env.DSH_HOME, 'storages', 'parallax.db'))
+for (let index = 0; index < 30; index += 1) {
+  const id = `2610.1${String(index).padStart(4, '0')}`
+  const title = `Combinatorics note ${index}`
+  extra.prepare(`INSERT INTO papers (source_id, title, abstract, authors, primary_category, categories, published_at, abs_url, pdf_url, fetched_at)
+    VALUES (?, ?, ?, ?, 'math.CO', 'math.CO', '2026-10-05T10:00:00.000Z', '', '', '2026-10-05T10:00:00.000Z')`).run(id, title, 'A short note.', 'Paul Erdos')
+}
+extra.close()
+const pool = codeOf(await tool('parallax_set', { action: 'create', name: 'notes', op: 'rule_filter', rules: [{ type: 'category', categories: ['math.CO'] }] }))
+const judged = codeOf(await tool('parallax_set', { action: 'judge', name: 'kept notes', parent: pool, criteria: 'Keep every other paper.' }))
+check('judging finishes', (await tool('parallax_set', { action: 'wait', set: judged, timeout_seconds: 30 })).startsWith('Judging finished.'))
+const node = (await call('/api/parallax/flow?sessionId=smoke-session')).body.nodes.find(item => item.code === judged)
+check('judging result', node.judged === 30 && node.count === 15 && node.undecided === 0, JSON.stringify({ judged: node.judged, count: node.count }))
+check('tuning honoured', jev.largest === 4 && jev.peak === 3, JSON.stringify(jev))
+server.close()
 
 for (const dispose of disposers.reverse()) dispose?.()
 console.log('smoke passed')

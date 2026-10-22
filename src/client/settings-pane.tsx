@@ -14,7 +14,15 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { CircleAlert, CircleCheck } from 'lucide-react'
-import { DEFAULT_JEV_BASE_URL, DEFAULT_JEV_MODEL, JEV_KEY_REF } from '../jev-defaults.ts'
+import {
+  DEFAULT_JEV_BASE_URL,
+  DEFAULT_JEV_BATCH_SIZE,
+  DEFAULT_JEV_CONCURRENCY,
+  DEFAULT_JEV_MODEL,
+  JEV_KEY_REF,
+  MAX_JEV_BATCH_SIZE,
+  MAX_JEV_CONCURRENCY,
+} from '../jev-defaults.ts'
 import { loadSettings, saveJevSettings, saveProxy, type JevSettingsView, type NetworkView } from './sets-api.ts'
 import { loadCategories, saveCategories } from './ingest-api.ts'
 import { CategoryEditor } from './category-editor.tsx'
@@ -22,6 +30,11 @@ import { errorMessage } from './http.ts'
 import { translator, type Translate } from './i18n.ts'
 
 type Message = { error: boolean, text: string } | null
+
+/** An input's text for a setting: empty while the default applies, so the placeholder shows it. */
+const shown = <T,>(value: T, fallback: T): string => (value === fallback ? '' : String(value))
+/** Empty restores the default; anything else goes to the host, which validates it. */
+const countOf = (text: string): number | null => (text.trim() === '' ? null : Number(text))
 
 function Status({ ok, label }: { ok: boolean, label: string }): JSX.Element {
   return (
@@ -97,16 +110,19 @@ function CategoriesCard({ tr }: { tr: Translate }): JSX.Element {
 function JevCard({ initial, tr }: { initial: JevSettingsView, tr: Translate }): JSX.Element {
   const [view, setView] = useState(initial)
   const [apiKey, setApiKey] = useState('')
-  // Inputs stay empty while the defaults apply, so the placeholders show them.
-  const [baseUrl, setBaseUrl] = useState(initial.baseUrl === DEFAULT_JEV_BASE_URL ? '' : initial.baseUrl)
-  const [model, setModel] = useState(initial.model === DEFAULT_JEV_MODEL ? '' : initial.model)
+  const [baseUrl, setBaseUrl] = useState(shown(initial.baseUrl, DEFAULT_JEV_BASE_URL))
+  const [model, setModel] = useState(shown(initial.model, DEFAULT_JEV_MODEL))
+  const [concurrency, setConcurrency] = useState(shown(initial.concurrency, DEFAULT_JEV_CONCURRENCY))
+  const [batchSize, setBatchSize] = useState(shown(initial.batchSize, DEFAULT_JEV_BATCH_SIZE))
   const { busy, message, run } = useSave(tr)
 
   const save = (change: Parameters<typeof saveJevSettings>[0]): void => {
     run(async () => await saveJevSettings(change), (next) => {
       setView(next)
-      setBaseUrl(next.baseUrl === DEFAULT_JEV_BASE_URL ? '' : next.baseUrl)
-      setModel(next.model === DEFAULT_JEV_MODEL ? '' : next.model)
+      setBaseUrl(shown(next.baseUrl, DEFAULT_JEV_BASE_URL))
+      setModel(shown(next.model, DEFAULT_JEV_MODEL))
+      setConcurrency(shown(next.concurrency, DEFAULT_JEV_CONCURRENCY))
+      setBatchSize(shown(next.batchSize, DEFAULT_JEV_BATCH_SIZE))
       setApiKey('')
     })
   }
@@ -148,6 +164,17 @@ function JevCard({ initial, tr }: { initial: JevSettingsView, tr: Translate }): 
             <input className="pg-input" type="text" spellCheck={false} placeholder={DEFAULT_JEV_MODEL} value={model} onChange={event => setModel(event.target.value)} />
           </label>
         </div>
+        <div className="pg-field-row">
+          <label className="pg-field">
+            <span>{tr('settings.concurrency')}</span>
+            <input className="pg-input" type="number" min={1} max={MAX_JEV_CONCURRENCY} step={1} placeholder={String(DEFAULT_JEV_CONCURRENCY)} value={concurrency} onChange={event => setConcurrency(event.target.value)} />
+          </label>
+          <label className="pg-field">
+            <span>{tr('settings.batchSize')}</span>
+            <input className="pg-input" type="number" min={1} max={MAX_JEV_BATCH_SIZE} step={1} placeholder={String(DEFAULT_JEV_BATCH_SIZE)} value={batchSize} onChange={event => setBatchSize(event.target.value)} />
+          </label>
+        </div>
+        <p className="pg-hint">{tr('settings.tuningHint', { concurrency: MAX_JEV_CONCURRENCY, batch: MAX_JEV_BATCH_SIZE })}</p>
 
         <div className="pg-settings-actions">
           <SaveMessage message={message} />
@@ -165,6 +192,8 @@ function JevCard({ initial, tr }: { initial: JevSettingsView, tr: Translate }): 
                 ...apiKey.trim() === '' ? {} : { apiKey: apiKey.trim() },
                 baseUrl: baseUrl.trim() === '' ? null : baseUrl.trim(),
                 model: model.trim() === '' ? null : model.trim(),
+                concurrency: countOf(concurrency),
+                batchSize: countOf(batchSize),
               })
             }}
           >

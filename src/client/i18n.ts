@@ -45,6 +45,7 @@ export type LocaleKey =
   | 'settings.jev' | 'settings.jevHint' | 'settings.configured' | 'settings.missing'
   | 'settings.key' | 'settings.keyPlaceholder' | 'settings.save' | 'settings.clear'
   | 'settings.baseUrl' | 'settings.model' | 'settings.saved' | 'settings.readonly'
+  | 'settings.concurrency' | 'settings.batchSize' | 'settings.tuningHint'
   | 'settings.categories'
   | 'settings.network' | 'settings.networkHint' | 'settings.proxy' | 'settings.proxyActive'
   | 'settings.proxyFromEnv' | 'settings.proxyDirect'
@@ -216,6 +217,9 @@ const en: Dict = {
   'settings.clear': 'Remove key',
   'settings.baseUrl': 'Base URL',
   'settings.model': 'Model',
+  'settings.concurrency': 'Concurrent requests',
+  'settings.batchSize': 'Papers per request',
+  'settings.tuningHint': 'More concurrent requests judge faster but hit Jev rate limits sooner (1–{concurrency}). Papers per request goes up to {batch}; long abstracts may pack fewer, and multi-label classification always sends one. Takes effect on the next run.',
   'settings.saved': 'Saved',
   'settings.readonly': 'Set by environment variable {name}',
   'group.cs': 'Computer science',
@@ -413,6 +417,9 @@ const zh: Dict = {
   'settings.clear': '移除 key',
   'settings.baseUrl': 'Base URL',
   'settings.model': '模型',
+  'settings.concurrency': '并发请求数',
+  'settings.batchSize': '每个请求的论文数',
+  'settings.tuningHint': '并发越高判得越快，但也更容易触发 Jev 限流（1–{concurrency}）。每个请求最多 {batch} 篇；摘要较长时会自动少装一些，多标签分类固定一篇一请求。下一次判定开始生效。',
   'settings.saved': '已保存',
   'settings.readonly': '由环境变量 {name} 提供',
   'group.cs': '计算机科学',

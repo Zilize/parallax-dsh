@@ -137,10 +137,21 @@ export function registerSetRoutes(routes: RouteRegistry, db: DatabaseSync, judge
         const value = input[name]
         return value === null ? null : typeof value === 'string' ? value : undefined
       }
+      // Numbers arrive as numbers; anything else is passed on to fail validation.
+      const count = (name: string): number | null | undefined => {
+        const value = input[name]
+        return value === undefined ? undefined : value === null ? null : typeof value === 'number' ? value : Number.NaN
+      }
       try {
         // An invalid proxy rejects the request before anything else is saved.
         const network = updateNetwork(db, { proxy: field('proxy') })
-        return respond({ ok: true, jev: await settings.update({ apiKey: field('apiKey'), baseUrl: field('baseUrl'), model: field('model') }), network })
+        return respond({ ok: true, jev: await settings.update({
+          apiKey: field('apiKey'),
+          baseUrl: field('baseUrl'),
+          model: field('model'),
+          concurrency: count('concurrency'),
+          batchSize: count('batchSize'),
+        }), network })
       } catch (error) {
         return failure(error)
       }
