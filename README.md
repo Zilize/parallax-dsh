@@ -19,7 +19,8 @@
 <p>
   <a href="#quick-start">Quick start</a> ·
   <a href="#usage">Usage</a> ·
-  <a href="docs/development.md">Development</a>
+  <a href="docs/development.md">Development</a> ·
+  <a href="https://parallax.ink">Try online</a>
 </p>
 
 <p><b>English</b> · <a href="README.zh-CN.md">简体中文</a></p>
@@ -79,10 +80,10 @@ This plugin is the local, open-source edition of Parallax. [Parallax online](htt
 
 | | This plugin | Parallax online |
 |---|---|---|
-| **Corpus** | The categories and days you harvest yourself | arXiv cs.* since 2020 (about 820k papers), ready to search |
+| **Corpus** | The categories and days you harvest yourself | All arXiv subjects since 2020, ready to search |
 | **Recall** | Keyword, category, date | Keyword, category, date, and semantic search |
 | **Screening and classification** | Jev, with your own API key | Jev |
-| **After the search** | Export the set as JSON | Reading view, field surveys, daily / weekly / monthly progress reports |
+| **After the search** | Export the set as JSON | **Generate a field survey** from the papers, plus a reading view and daily / weekly / monthly progress reports |
 | **Where it runs** | Your machine, inside DeepSeek Harness | In the browser, nothing to install |
 
 Pick the plugin if you want everything local or want to change how it works. If you just want to see what a Parallax search feels like, [sign up for Parallax online](https://parallax.ink) and try it there first.
@@ -195,7 +196,7 @@ An export is the set's paper list, one item per paper:
 ## Limitations
 
 - The corpus has arXiv **metadata and abstracts** only: no full text, no citation graph, no embeddings. Recall is by keyword, so the agent covers the different names of a concept with separate routes. Semantic recall is available in [Parallax online](https://parallax.ink).
-- The local corpus holds only the dates and categories you harvested; it is not all of arXiv (Parallax online comes with cs.* since 2020). And arXiv's OAI interface serves records by **datestamp** (the date of the last metadata change), not by submission date: a revised paper moves to a later date. So the agent treats only an **unbroken run** of fully harvested days as complete coverage, and says so when gaps could change its answer.
+- The local corpus holds only the dates and categories you harvested; it is not all of arXiv (Parallax online comes with all of arXiv since 2020). And arXiv's OAI interface serves records by **datestamp** (the date of the last metadata change), not by submission date: a revised paper moves to a later date. So the agent treats only an **unbroken run** of fully harvested days as complete coverage, and says so when gaps could change its answer.
 - Jev returns probabilities, not reasons, and is billed per request. The skill has the agent run a trial before a full run, and read the abstracts of borderline papers itself.
 
 ## Development
