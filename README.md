@@ -131,7 +131,7 @@ Open the dropdown next to the Parallax icon in the conversation header → **Set
 | Setting | What it does |
 |---|---|
 | **arXiv categories** | The harvest scope, e.g. `cs.CL`, `cs.AI`, or a whole group such as `cs.*`. The coverage calendar is measured against it. |
-| **Jev judge model** | The API key is kept in the dsh credential file, never in the plugin database, and the browser never sees it. You can also tune how many requests run at once (default 2) and how many papers go into each (default 60). |
+| **Jev judge model** | The API key is kept in the dsh credential file, never in the plugin database, and the browser never sees it. You can also tune how many requests run at once (default 6) and how many papers go into each (default 30). |
 | **Network** | An HTTP proxy shared by harvests and Jev requests. Node's built-in `fetch` ignores `HTTPS_PROXY`, so on a network that needs a proxy, set it here, e.g. `http://127.0.0.1:7890`. |
 
 The agent can set the categories and proxy for you. The API key can only be entered in Settings, so it never ends up in a conversation transcript.

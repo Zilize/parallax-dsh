@@ -126,7 +126,7 @@ const response = await route.fetch(new Request(`http://host/api/parallax/export?
 check('export route', response.status === 200 && (await response.json()).length === 3)
 
 // Jev tuning: validated on save, and honoured by a real judging run.
-check('tuning defaults', settings.body.jev.concurrency === 2 && settings.body.jev.batchSize === 60)
+check('tuning defaults', settings.body.jev.concurrency === 6 && settings.body.jev.batchSize === 30)
 check('tuning rejects', (await call('/api/parallax/settings', post({ concurrency: 0 }))).status === 400
   && (await call('/api/parallax/settings', post({ batchSize: 61 }))).status === 400
   && (await call('/api/parallax/settings', post({ concurrency: 2.5 }))).status === 400)
