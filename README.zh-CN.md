@@ -98,15 +98,26 @@
 - Node.js ≥ 22.5（插件直接使用内置的 `node:sqlite`，不需要编译原生模块）
 - 一个 Jev API key，用于 AI 精筛和分类（可选：没有它，规则检索和集合运算照常可用）
 
-### 构建并安装
+### 构建
 
 ```sh
 git clone https://github.com/Zilize/parallax-dsh.git
 cd parallax-dsh
 npm install
 npm run build
+```
 
-dsh plugin --profile <profile> add ./parallax-dsh
+### 安装到 profile
+
+dsh 的 **profile** 是一套命名的运行配置（加载哪些插件和组件），对应 `~/.dsh/profiles/` 下的一个文件夹。不同的 dsh 入口用各自的 profile，常见的安装里桌面 App 用 `desktop`，网页版用 `web`，终端界面用 `dsh-tui`。在 `parallax-dsh` 目录里，把插件装进你在用的那个 profile：
+
+```sh
+dsh plugin --profile desktop add .
+```
+
+然后重启桌面 App。如果你是从命令行启动 dsh，就用这个 profile 启动：
+
+```sh
 dsh --profile <profile>
 ```
 

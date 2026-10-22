@@ -98,15 +98,26 @@ Pick the plugin if you want everything local or want to change how it works. If 
 - Node.js ≥ 22.5 (the plugin uses the built-in `node:sqlite`, so there is no native module to compile)
 - A Jev API key for AI screening and classification (optional: rule filters and set operations work without one)
 
-### Build and install
+### Build
 
 ```sh
 git clone https://github.com/Zilize/parallax-dsh.git
 cd parallax-dsh
 npm install
 npm run build
+```
 
-dsh plugin --profile <profile> add ./parallax-dsh
+### Install into a profile
+
+A dsh **profile** is a named setup (which plugins and components are loaded), stored as a folder under `~/.dsh/profiles/`. Each way of running dsh uses its own profile; on a typical install that means `desktop` for the desktop app, `web` for the web UI and `dsh-tui` for the terminal UI. Install Parallax into the profile you use, from the `parallax-dsh` folder:
+
+```sh
+dsh plugin --profile desktop add .
+```
+
+Then restart the desktop app. If you start dsh from the command line instead, launch it with that profile:
+
+```sh
 dsh --profile <profile>
 ```
 
