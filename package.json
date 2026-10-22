@@ -5,6 +5,10 @@
   "description": "Jev-powered arXiv literature search tool",
   "license": "Apache-2.0",
   "homepage": "https://parallax.ink",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Zilize/parallax-dsh.git"
+  },
   "icon": "assets/icon.svg",
   "type": "module",
   "main": "lib/index.js",

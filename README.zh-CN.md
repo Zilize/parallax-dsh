@@ -100,7 +100,7 @@
 ### 构建并安装
 
 ```sh
-git clone <本仓库地址> parallax-dsh
+git clone https://github.com/Zilize/parallax-dsh.git
 cd parallax-dsh
 npm install
 npm run build

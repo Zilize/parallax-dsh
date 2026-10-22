@@ -100,7 +100,7 @@ Pick the plugin if you want everything local or want to change how it works. If 
 ### Build and install
 
 ```sh
-git clone <repository-url> parallax-dsh
+git clone https://github.com/Zilize/parallax-dsh.git
 cd parallax-dsh
 npm install
 npm run build
